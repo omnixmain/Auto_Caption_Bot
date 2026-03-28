@@ -23,7 +23,7 @@ async def start_command(client, message):
         disable_web_page_preview=True
     )
 
-@app.on_message(filters.command("help") & filters.private)
+@CaptionBot.on_message(filters.command("help") & filters.private)
 async def help_command(client, message):
     await message.reply_text(
         Messages.HELP_TEXT,
@@ -38,7 +38,7 @@ async def help_command(client, message):
         disable_web_page_preview=True
     )
 
-@app.on_message(filters.command("about") & filters.private)
+@CaptionBot.on_message(filters.command("about") & filters.private)
 async def about_command(client, message):
     await message.reply_text(
         Messages.ABOUT_TEXT,
@@ -53,7 +53,7 @@ async def about_command(client, message):
         disable_web_page_preview=True
     )
 
-@app.on_callback_query()
+@CaptionBot.on_callback_query()
 async def callback_handler(client, callback_query: CallbackQuery):
     data = callback_query.data
     
