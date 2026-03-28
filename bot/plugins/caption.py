@@ -1,4 +1,5 @@
 import logging
+import re
 from pyrogram import filters
 from bot.client import CaptionBot
 from bot.config import Config
@@ -13,6 +14,22 @@ def get_human_size(bytes_size):
             return f"{bytes_size:.2f} {unit}"
         bytes_size /= 1024
 
+def get_metadata(filename):
+    """Extract Season, Episode, Quality and Type from filename."""
+    # Season & Episode: S01E01, S1 E1, etc.
+    se_match = re.search(r'[S|s](\d+)\s?[E|e](\d+)', filename)
+    season_episode = se_match.group(0).upper() if se_match else "N/A"
+    
+    # Quality: 480p, 720p, 1080p, 2160p, 4k
+    q_match = re.search(r'(480p|720p|1080p|2160p|4k|HDR)', filename, re.IGNORECASE)
+    quality = q_match.group(0).upper() if q_match else "N/A"
+    
+    # File Type: Extension
+    parts = filename.split(".")
+    file_type = parts[-1].upper() if len(parts) > 1 else "N/A"
+    
+    return season_episode, quality, file_type
+
 @app.on_message(
     filters.channel & 
     (filters.document | filters.video | filters.audio | filters.photo) & 
@@ -24,20 +41,31 @@ async def auto_caption(client, message):
         if not media:
             return
 
-        # 1. Base information (Filename and Size)
+        # 1. Extract Metadata
         file_name = getattr(media, 'file_name', 'Media File')
-        # Clean filename: replace "_" with " " and ensure it's readable
-        clean_name = file_name.replace("_", " ").replace(".mp4", "").replace(".mkv", "")
-        
-        file_size = get_human_size(media.file_size) if hasattr(media, 'file_size') else "Unknown"
+        # Clean name for display (remove underscores, dots, and quality tags for the title line)
+        display_name = file_name.replace("_", " ").replace(".", " ")
+        # Remove extension from display name
+        if "." in file_name:
+            display_name = " ".join(display_name.split(" ")[:-1])
 
-        # 2. Construct the core caption
+        season_episode, quality, file_type = get_metadata(file_name)
+        file_size = get_human_size(media.file_size) if hasattr(media, 'file_size') else "N/A"
+
+        # 2. Construct the core caption as per user request
+        # 📁 {file_name}
+        # 🎬 {season_episode}
+        # 📺 {quality} | 📦 {file_size} | 📂 {file_type}
+        
         core_caption = (
-            f"📂 **File:** `{clean_name}`\n"
-            f"📦 **Size:** `{file_size}`"
+            f"📁 **{display_name}**\n"
+            f"🎬 **{season_episode}**\n"
+            f"📺 **{quality}** | 📦 **{file_size}** | 📂 **{file_type}**\n"
+            f"\n"
+            f"⚡ **OMNIX EMPIRE** https://t.me/omnix_Empire"
         )
 
-        # 3. Add custom caption text from config
+        # 3. Add custom caption text from config (if any)
         caption_text = Config.CAPTION_TEXT
         position = Config.CAPTION_POSITION
         
@@ -53,7 +81,7 @@ async def auto_caption(client, message):
             caption=final_caption,
             parse_mode="markdown"
         )
-        logger.info(f"Successfully updated caption for: {clean_name}")
+        logger.info(f"Successfully updated caption for: {file_name}")
         
     except Exception as e:
         logger.error(f"Error editing caption: {e}")
