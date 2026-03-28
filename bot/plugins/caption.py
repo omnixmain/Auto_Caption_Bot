@@ -1,6 +1,7 @@
 import logging
 import re
 from pyrogram import filters
+from pyrogram.enums import ParseMode
 from bot.client import CaptionBot
 from bot.config import Config
 
@@ -78,7 +79,7 @@ async def auto_caption(client, message):
         # 4. Apply editing
         await message.edit_caption(
             caption=final_caption,
-            parse_mode="markdown"
+            parse_mode=ParseMode.MARKDOWN
         )
         logger.info(f"Successfully updated caption for: {file_name}")
         
