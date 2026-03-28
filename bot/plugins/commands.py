@@ -4,9 +4,10 @@ from bot.client import CaptionBot
 from bot.config import Config
 from bot.utils.messages import Messages
 
-app = CaptionBot()
+# No need to instantiate app here, the main client will load these plugins
+# app = CaptionBot()
 
-@app.on_message(filters.command("start") & filters.private)
+@CaptionBot.on_message(filters.command("start") & filters.private)
 async def start_command(client, message):
     await message.reply_text(
         Messages.START_TEXT.format(message.from_user.first_name, Config.ADMIN_USERNAME),

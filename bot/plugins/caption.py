@@ -5,7 +5,7 @@ from bot.client import CaptionBot
 from bot.config import Config
 
 logger = logging.getLogger(__name__)
-app = CaptionBot()
+# app = CaptionBot()
 
 def get_human_size(bytes_size):
     """Convert bytes to a human-readable format."""
@@ -30,7 +30,7 @@ def get_metadata(filename):
     
     return season_episode, quality, file_type
 
-@app.on_message(
+@CaptionBot.on_message(
     filters.channel & 
     (filters.document | filters.video | filters.audio | filters.photo) & 
     ~filters.edited
