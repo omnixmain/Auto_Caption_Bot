@@ -32,8 +32,7 @@ def get_metadata(filename):
 
 @CaptionBot.on_message(
     filters.channel & 
-    (filters.document | filters.video | filters.audio | filters.photo) & 
-    ~filters.edited
+    (filters.document | filters.video | filters.audio | filters.photo)
 )
 async def auto_caption(client, message):
     try:
