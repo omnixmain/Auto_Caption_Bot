@@ -11,7 +11,8 @@ async def main():
     app = CaptionBot()
     await app.start()
     print("Bot started successfully!")
-    await app.idle()
+    from pyrogram import idle
+    await idle()
 
 if __name__ == "__main__":
     asyncio.run(main())
